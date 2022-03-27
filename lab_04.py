@@ -6,31 +6,19 @@ from sys import argv
 
 def main(filename:str):
     packet_list = rdpcap(filename)
-    # packet_list.summary(lambda x:x.show())
 
-    print(packet_list, end='\n\n')
+    print(packet_list)
 
     arp_request = packet_list[0]
-    arp_request.show()
+    # arp_request.show()
+    
+    print('\nInformation from the ARP request: ')
+    print('Source IP addr: ' + arp_request.psrc)
+    print('Requested IP addr: ' + arp_request.pdst)
+    print('Source Hardware(MAC) addr: ' + arp_request.hwsrc)
+    print('Destination hardware(MAC) addr: ' + arp_request.dst)
 
-    print('---------------------------------------------\n')
-
-    ether_fields = {
-        'dst': arp_request.src,
-        'src': '00:0c:29:c5:33:72'
-    }
-
-    arp_fields = {
-        'hwtype': 1,
-        'ptype': 4,
-        'hwlen': 6,
-        'plen': 4,
-        'op': 2,
-        'hwsrc': '00:0c:29:c5:33:72',
-        'psrc': arp_request.pdst,
-        'hwdst': arp_request.src,
-        'pdst': arp_request.psrc
-    }
+    print('\n---------------------------------------------\n')
     
     #arp_response = Packet.copy(arp_request)
     arp_response = Ether()/ARP()
@@ -49,7 +37,14 @@ def main(filename:str):
     arp_response[ARP].hwdst = arp_request.src
     arp_response[ARP].pdst = arp_request.psrc
 
-    arp_response.show()
+    # arp_response.show()
+    
+    print('Information from the ARP response: ')
+    print('Source Hardware(MAC) addr: ' + arp_response.hwsrc)
+    print('Destination hardware(MAC) addr: ' + arp_response.dst)
+    print('ARP OP Code: ' + str(arp_response.op))
+    
+    sendp(arp_response)
 
 if __name__ == '__main__':
     if len(argv) < 2:
